@@ -1,14 +1,15 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
-
-dotenv.config();
+import { env } from "./config/env";
+import apiRoutes from "./routes";
+import { notFound } from "./middlewares/notFound";
+import { errorHandler } from "./middlewares/errorHandler";
 
 const app = express();
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: env.clientUrl,
     credentials: true,
   }),
 );
@@ -21,5 +22,10 @@ app.get("/health", (_req, res) => {
     message: "SourceMind AI API is running",
   });
 });
+
+app.use("/api", apiRoutes);
+
+app.use(notFound);
+app.use(errorHandler);
 
 export default app;
