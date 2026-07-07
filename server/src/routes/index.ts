@@ -1,5 +1,6 @@
 import { Router } from "express";
 import authRoutes from "./authRoutes";
+import documentRoutes from "./documentRoutes";
 import workspaceRoutes from "./workspaceRoutes";
 
 const router = Router();
@@ -13,5 +14,6 @@ router.get("/", (_req, res) => {
 
 router.use("/auth", authRoutes);
 router.use("/workspaces", workspaceRoutes);
+router.use("/documents", documentRoutes);
 
 export default router;
