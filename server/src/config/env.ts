@@ -13,7 +13,7 @@ export const env = {
   geminiEmbeddingModel:
     process.env.GEMINI_EMBEDDING_MODEL || "gemini-embedding-2",
   embeddingDimension: Number(process.env.EMBEDDING_DIMENSION || 768),
-
+  geminiChatModel: process.env.GEMINI_CHAT_MODEL || "gemini-2.5-flash",
   pineconeApiKey: process.env.PINECONE_API_KEY || "",
   pineconeIndexName: process.env.PINECONE_INDEX_NAME || "sourcemind-ai",
   pineconeNamespace: process.env.PINECONE_NAMESPACE || "documents",

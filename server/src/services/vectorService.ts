@@ -15,6 +15,14 @@ type ChunkVectorInput = {
   };
 };
 
+export type SimilarChunk = {
+  documentId: string;
+  documentName: string;
+  chunkIndex: number;
+  text: string;
+  score: number;
+};
+
 const pc = new Pinecone({
   apiKey: env.pineconeApiKey,
 });
@@ -38,6 +46,48 @@ export const vectorService = {
     await index.upsert({
       namespace: env.pineconeNamespace,
       records: vectors,
+    });
+  },
+
+  async searchSimilarChunks({
+    embedding,
+    userId,
+    workspaceId,
+    topK = 5,
+  }: {
+    embedding: number[];
+    userId: string;
+    workspaceId: string;
+    topK?: number;
+  }): Promise<SimilarChunk[]> {
+    const index = getIndex();
+
+    const result = await index.query({
+      namespace: env.pineconeNamespace,
+      vector: embedding,
+      topK,
+      includeMetadata: true,
+      filter: {
+        userId: { $eq: userId },
+        workspaceId: { $eq: workspaceId },
+      },
+    });
+
+    return (result.matches || []).map((match) => {
+      const metadata = match.metadata as {
+        documentId?: string;
+        documentName?: string;
+        chunkIndex?: number;
+        text?: string;
+      };
+
+      return {
+        documentId: metadata.documentId || "",
+        documentName: metadata.documentName || "Unknown document",
+        chunkIndex: metadata.chunkIndex || 0,
+        text: metadata.text || "",
+        score: match.score || 0,
+      };
     });
   },
 };
