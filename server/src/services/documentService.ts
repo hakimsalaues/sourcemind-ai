@@ -4,6 +4,8 @@ import { Workspace } from "../models/Workspace";
 import { AppError } from "../utils/AppError";
 import { pdfService } from "./pdfService";
 import { chunkService } from "./chunkService";
+import { embeddingService } from "./embeddingService";
+import { vectorService } from "./vectorService";
 
 type CreateDocumentInput = {
   workspaceId: string;
@@ -57,6 +59,23 @@ export const documentService = {
         chunkSize: 1000,
         overlap: 150,
       });
+
+      const embeddings = await embeddingService.generateEmbeddings(chunks);
+
+      const vectors = chunks.map((chunk, index) => ({
+        id: `${document._id.toString()}-${index}`,
+        values: embeddings[index],
+        metadata: {
+          userId,
+          workspaceId,
+          documentId: document._id.toString(),
+          documentName: document.originalName,
+          chunkIndex: index,
+          text: chunk,
+        },
+      }));
+
+      await vectorService.upsertDocumentChunks(vectors);
 
       document.status = "completed";
       document.chunkCount = chunks.length;

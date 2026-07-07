@@ -211,3 +211,44 @@ Implement document upload base:
 - Document controller
 - Document service
 - Protected PDF upload endpoint
+
+## Document Upload and PDF Processing Completed
+
+Implemented:
+
+- Document model
+- Multer upload middleware
+- Protected PDF upload endpoint
+- Document metadata storage in MongoDB
+- Workspace ownership validation
+- PDF text extraction with pdf-parse
+- Basic text chunking
+- Document processing status updates
+
+Tested successfully:
+
+- Upload PDF
+- Store file in uploads/
+- Save document metadata
+- Extract readable text from PDF
+- Generate chunks
+- Update document status to completed
+- Save chunkCount in MongoDB
+
+Build status:
+
+- npm run build completed successfully with no TypeScript errors.
+
+Important note:
+
+- pdf-parse was downgraded to version 1.1.1 because the newer version caused import/runtime issues with the current backend setup.
+
+Next Step:
+
+Implement the AI/RAG layer:
+
+- Gemini API setup
+- Embedding service
+- Pinecone setup
+- Vector storage for document chunks
+- Semantic search
