@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { env } from "../config/env";
+import { AppError } from "../utils/AppError";
 
 export const errorHandler = (
   err: Error,
@@ -9,7 +10,14 @@ export const errorHandler = (
 ) => {
   console.error(err);
 
-  res.status(500).json({
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({
+      success: false,
+      message: err.message,
+    });
+  }
+
+  return res.status(500).json({
     success: false,
     message: "Internal server error",
     error: env.nodeEnv === "development" ? err.message : undefined,
