@@ -23,7 +23,7 @@ const createToken = (userId: string) => {
 
 const formatUser = (user: IUser) => {
   return {
-    id: user.id,
+    id: user._id.toString(),
     name: user.name,
     email: user.email,
   };
