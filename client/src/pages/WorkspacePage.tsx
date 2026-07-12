@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { useWorkspace } from "../hooks/useWorkspaces";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 import { DocumentsPanel } from "../components/DocumentsPanel";
+import { ChatPanel } from "../components/ChatPanel";
 
 export const WorkspacePage = () => {
   const { workspaceId } = useParams<{
@@ -46,7 +47,7 @@ export const WorkspacePage = () => {
 
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-10 text-white">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-7xl">
         <Link to="/dashboard" className="text-sm font-semibold text-cyan-300">
           ← Back to dashboard
         </Link>
@@ -63,24 +64,9 @@ export const WorkspacePage = () => {
           </p>
         </header>
 
-        <section className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+        <section className="mt-8 grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
           <DocumentsPanel workspaceId={workspaceId!} />
-
-          <article className="rounded-2xl border border-slate-800 bg-slate-900 p-8">
-            <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">
-              AI assistant
-            </p>
-
-            <h2 className="mt-2 text-2xl font-semibold">Ask SourceMind</h2>
-
-            <p className="mt-3 leading-6 text-slate-400">
-              The RAG chat interface will appear here in the next phase.
-            </p>
-
-            <div className="mt-6 rounded-xl border border-dashed border-slate-700 px-5 py-10 text-center text-sm text-slate-500">
-              Upload a document and then ask questions about its content.
-            </div>
-          </article>
+          <ChatPanel workspaceId={workspaceId!} />
         </section>
       </div>
     </main>
