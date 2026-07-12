@@ -1,10 +1,12 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { DashboardPage } from "./pages/DashboardPage";
-import { ProtectedRoute } from "./routes/ProtectedRoute";
 import { WorkspacePage } from "./pages/WorkspacePage";
+import { NotFoundPage } from "./pages/NotFoundPage";
+import { ProtectedRoute } from "./routes/ProtectedRoute";
+import { AppLayout } from "./layouts/AppLayout";
 
 function App() {
   return (
@@ -15,11 +17,17 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
 
         <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/workspaces/:workspaceId" element={<WorkspacePage />} />
+          <Route element={<AppLayout />}>
+            <Route path="/dashboard" element={<DashboardPage />} />
+
+            <Route
+              path="/workspaces/:workspaceId"
+              element={<WorkspacePage />}
+            />
+          </Route>
         </Route>
 
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   );
