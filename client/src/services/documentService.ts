@@ -61,4 +61,8 @@ export const documentService = {
 
     return extractDocument(response.data.data);
   },
+
+  async remove(documentId: string): Promise<void> {
+    await api.delete(`/documents/${documentId}`);
+  },
 };

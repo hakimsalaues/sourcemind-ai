@@ -27,3 +27,17 @@ export const useUploadDocument = (workspaceId: string) => {
     },
   });
 };
+
+export const useDeleteDocument = (workspaceId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (documentId: string) => documentService.remove(documentId),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: documentKeys.byWorkspace(workspaceId),
+      });
+    },
+  });
+};

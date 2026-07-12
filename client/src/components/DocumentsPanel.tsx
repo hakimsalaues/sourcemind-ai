@@ -1,6 +1,10 @@
 import { useRef, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
-import { useDocuments, useUploadDocument } from "../hooks/useDocuments";
+import {
+  useDeleteDocument,
+  useDocuments,
+  useUploadDocument,
+} from "../hooks/useDocuments";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 import { getDocumentId, type DocumentStatus } from "../types/document";
 
@@ -50,17 +54,25 @@ export const DocumentsPanel = ({ workspaceId }: DocumentsPanelProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const documentsQuery = useDocuments(workspaceId);
+
   const uploadMutation = useUploadDocument(workspaceId);
 
+  const deleteMutation = useDeleteDocument(workspaceId);
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
   const [validationError, setValidationError] = useState("");
+
   const [uploadError, setUploadError] = useState("");
+
+  const [deleteError, setDeleteError] = useState("");
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
 
     setValidationError("");
     setUploadError("");
+    setDeleteError("");
 
     if (!file) {
       setSelectedFile(null);
@@ -98,6 +110,7 @@ export const DocumentsPanel = ({ workspaceId }: DocumentsPanelProps) => {
 
     setValidationError("");
     setUploadError("");
+    setDeleteError("");
 
     try {
       await uploadMutation.mutateAsync(selectedFile);
@@ -110,6 +123,31 @@ export const DocumentsPanel = ({ workspaceId }: DocumentsPanelProps) => {
     } catch (error) {
       setUploadError(
         getApiErrorMessage(error, "Unable to upload and process the document."),
+      );
+    }
+  };
+
+  const handleDeleteDocument = async (
+    documentId: string,
+    documentName: string,
+  ) => {
+    const confirmed = window.confirm(
+      `Delete "${documentName}"? The PDF and its searchable AI data will be permanently removed.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setDeleteError("");
+    setUploadError("");
+    setValidationError("");
+
+    try {
+      await deleteMutation.mutateAsync(documentId);
+    } catch (error) {
+      setDeleteError(
+        getApiErrorMessage(error, "Unable to delete the document."),
       );
     }
   };
@@ -197,6 +235,12 @@ export const DocumentsPanel = ({ workspaceId }: DocumentsPanelProps) => {
           )}
         </div>
 
+        {deleteError && (
+          <p className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+            {deleteError}
+          </p>
+        )}
+
         {documentsQuery.isPending && (
           <p className="mt-5 text-sm text-slate-400">Loading documents...</p>
         )}
@@ -232,45 +276,69 @@ export const DocumentsPanel = ({ workspaceId }: DocumentsPanelProps) => {
 
         {documentsQuery.isSuccess && documentsQuery.data.length > 0 && (
           <div className="mt-5 space-y-3">
-            {documentsQuery.data.map((document) => (
-              <div
-                key={getDocumentId(document)}
-                className="rounded-xl border border-slate-800 bg-slate-950/60 p-4"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <p className="truncate font-medium text-white">
-                      {document.originalName}
-                    </p>
+            {documentsQuery.data.map((document) => {
+              const documentId = getDocumentId(document);
 
-                    <p className="mt-1 text-xs text-slate-500">
-                      {formatFileSize(document.size)}
-                    </p>
+              const isDeleting =
+                deleteMutation.isPending &&
+                deleteMutation.variables === documentId;
+
+              return (
+                <div
+                  key={documentId}
+                  className="rounded-xl border border-slate-800 bg-slate-950/60 p-4"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="truncate font-medium text-white">
+                        {document.originalName}
+                      </p>
+
+                      <p className="mt-1 text-xs text-slate-500">
+                        {formatFileSize(document.size)}
+                      </p>
+                    </div>
+
+                    <span
+                      className={`shrink-0 rounded-full border px-3 py-1 text-xs font-semibold ${getStatusClasses(
+                        document.status,
+                      )}`}
+                    >
+                      {getStatusLabel(document.status)}
+                    </span>
                   </div>
 
-                  <span
-                    className={`shrink-0 rounded-full border px-3 py-1 text-xs font-semibold ${getStatusClasses(
-                      document.status,
-                    )}`}
-                  >
-                    {getStatusLabel(document.status)}
-                  </span>
+                  <div className="mt-4 flex items-end justify-between gap-4">
+                    <div>
+                      {document.status === "completed" && (
+                        <p className="text-sm text-slate-400">
+                          {document.chunkCount || 0} searchable{" "}
+                          {document.chunkCount === 1 ? "chunk" : "chunks"}
+                        </p>
+                      )}
+
+                      {document.status === "failed" &&
+                        document.errorMessage && (
+                          <p className="text-sm text-red-300">
+                            {document.errorMessage}
+                          </p>
+                        )}
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={deleteMutation.isPending}
+                      onClick={() =>
+                        handleDeleteDocument(documentId, document.originalName)
+                      }
+                      className="shrink-0 rounded-lg border border-red-500/30 px-3 py-2 text-xs font-semibold text-red-300 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {isDeleting ? "Deleting..." : "Delete"}
+                    </button>
+                  </div>
                 </div>
-
-                {document.status === "completed" && (
-                  <p className="mt-3 text-sm text-slate-400">
-                    {document.chunkCount || 0} searchable{" "}
-                    {document.chunkCount === 1 ? "chunk" : "chunks"}
-                  </p>
-                )}
-
-                {document.status === "failed" && document.errorMessage && (
-                  <p className="mt-3 text-sm text-red-300">
-                    {document.errorMessage}
-                  </p>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
