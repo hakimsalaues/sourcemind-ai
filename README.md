@@ -6,11 +6,15 @@ The application retrieves semantically relevant document chunks and generates an
 
 ## Project Status
 
-The complete local MVP is functional.
+SourceMind AI is a functional full-stack MVP designed to demonstrate end-to-end development and Retrieval-Augmented Generation (RAG) integration.
 
-Current features include authentication, workspace management, PDF processing, vector search, RAG conversations, source citations, conversation history, document deletion, and a responsive user interface.
+The application includes user authentication, private workspaces, PDF processing, semantic search, AI-powered document conversations, source citations, and persistent conversation history.
 
-Production deployment is the next stage.
+**Live Demo:** https://sourcemind-ai.vercel.app
+
+The project demonstrates practical experience in frontend and backend development, API integration, vector databases, authentication, and AI-powered application architecture.
+
+SourceMind AI continues to evolve, with planned improvements in automated testing, document storage, and processing scalability.
 
 ## Main Features
 
@@ -391,13 +395,11 @@ Historical chat messages remain available as conversation records, but new quest
 
 ## Current Limitations
 
-- Only PDF documents are currently supported.
-- Scanned PDFs requiring OCR are not processed.
-- Document processing occurs during the upload request.
-- Workspaces cannot currently be shared between users.
-- Conversations cannot currently be renamed or deleted.
-- Automated tests are not yet included.
-- Local file storage will be replaced or adapted for production deployment.
+- PDF documents are supported; scanned documents requiring OCR are not yet processed.
+- Document processing is synchronous and may take longer for large files.
+- Uploaded files currently rely on local storage; persistent cloud storage is planned.
+- Automated testing coverage is planned for future development.
+- Workspace sharing and advanced conversation management are not yet supported.
 
 ## Future Improvements
 
